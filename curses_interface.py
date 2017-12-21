@@ -52,11 +52,11 @@ class cursesDisplay:
         starty = self.starty
         for cur_period in period_list:
             if indicators[cur_period.name]['total_periods'] > 250:
-                stoch_diff = Decimal(indicators[cur_period.name]['stoch_slowk']) - Decimal(indicators[cur_period.name]['stoch_slowd'])
-                obv_diff = Decimal(indicators[cur_period.name]['obv']) - Decimal(indicators[cur_period.name]['obv_ema'])
-                self.pad.addstr(starty, 0, "%s - OBV_DIFF: %f STOCH_DIFF: %f ADX: %f" %
-                                (cur_period.name, obv_diff, stoch_diff, indicators[cur_period.name]['adx']),
-                                self.print_color(Decimal(obv_diff), Decimal('0.0')))
+                self.pad.addstr(starty, 0, "%s - EMA_TREND: %f ADX: %f ADX_TREND: %f" %
+                                (cur_period.name, indicators[cur_period.name]['ema_trend'], indicators[cur_period.name]['adx'],
+                                 indicators[cur_period.name]['adx_trend']),
+                                self.print_color(Decimal(indicators[cur_period.name]['ema_trend']), Decimal('0.0'),
+                                                 Decimal(indicators[cur_period.name]['adx']), Decimal('25.0')))
                 starty += 1
         self.starty = starty + 1
 
@@ -108,7 +108,7 @@ class cursesDisplay:
                 text = 'SELL'
                 color = curses.color_pair(2)
             else:
-                text = 'NONE'
+                text = 'HOLD'
                 color = curses.color_pair(0)
             self.pad.addstr(starty, 93, "%s: %s" % (product.product_id, text), color)
             starty += 1
