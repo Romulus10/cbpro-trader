@@ -51,14 +51,16 @@ class cursesDisplay:
     def update_indicators(self, period_list, indicators):
         starty = self.starty
         for cur_period in period_list:
-            stoch_diff = Decimal(indicators[cur_period.name]['stoch_slowk']) - Decimal(indicators[cur_period.name]['stoch_slowd'])
-            obv_diff = Decimal(indicators[cur_period.name]['obv']) - Decimal(indicators[cur_period.name]['obv_ema'])
-            self.pad.addstr(starty, 0, "%s - MACD_HIST: %f OBV_DIFF: %f STOCH_DIFF: %f ADX: %f" %
-                            (cur_period.name, indicators[cur_period.name]['macd_hist'], obv_diff,
-                             stoch_diff, indicators[cur_period.name]['adx']),
-                            self.print_color(indicators[cur_period.name]['macd_hist'],
-                                             Decimal('0.0'), Decimal(obv_diff),
-                                             Decimal('0.0')))
+            if cur_period.period_size == (60 * 60):
+                self.pad.addstr(starty, 0, "%s - MACD_HIST: %f" %
+                                (cur_period.name, indicators[cur_period.name]['macd_hist']),
+                                self.print_color(Decimal(indicators[cur_period.name]['obv_trend']), Decimal('0.0')))
+            else:
+                obv_diff = Decimal(indicators[cur_period.name]['obv']) - Decimal(indicators[cur_period.name]['obv_ema5'])
+                self.pad.addstr(starty, 0, "%s - OBV_DIFF: %f OBV_TREND: %f" %
+                                (cur_period.name, obv_diff, indicators[cur_period.name]['obv_trend']),
+                                self.print_color(Decimal(obv_diff), Decimal('0.0'),
+                                                 Decimal(indicators[cur_period.name]['obv_trend']), Decimal('0.0')))
             starty += 1
         self.starty = starty + 1
 
@@ -110,7 +112,7 @@ class cursesDisplay:
                 text = 'SELL'
                 color = curses.color_pair(2)
             else:
-                text = 'NONE'
+                text = 'HOLD'
                 color = curses.color_pair(0)
             self.pad.addstr(starty, 93, "%s: %s" % (product.product_id, text), color)
             starty += 1

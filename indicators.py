@@ -27,10 +27,10 @@ class IndicatorSubsystem:
             volumes = np.append(cur_period.get_volumes(), cur_period.cur_candlestick.volume)
 
             # self.calculate_bbands(cur_period.name, closing_prices_close)
-            self.calculate_macd(cur_period.name, closing_prices_close)
-            self.calculate_obv(cur_period.name, closing_prices_close, volumes)
-            self.calculate_adx(cur_period.name, closing_prices_close)
-            self.calculate_stoch(cur_period.name, closing_prices_close)
+            if cur_period.period_size == (60 * 60):
+                self.calculate_macd(cur_period.name, closing_prices_close)
+            else:
+                self.calculate_obv(cur_period.name, closing_prices_close, volumes)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
             self.current_indicators[cur_period.name]['total_periods'] = total_periods
@@ -77,10 +77,11 @@ class IndicatorSubsystem:
 
     def calculate_obv(self, period_name, closing_prices, volumes):
         obv = talib.OBV(closing_prices, volumes)
-        obv_ema = talib.EMA(obv, timeperiod=3)
+        obv_ema5 = talib.EMA(obv, timeperiod=6)
 
-        self.current_indicators[period_name]['obv_ema'] = obv_ema[-1]
         self.current_indicators[period_name]['obv'] = obv[-1]
+        self.current_indicators[period_name]['obv_ema5'] = obv_ema5[-1]
+        self.current_indicators[period_name]['obv_trend'] = (Decimal(obv[-1]) - Decimal(obv_ema5[-1])) - (Decimal(obv[-2]) - Decimal(obv_ema5[-2]))
 
     def calculate_sar(self, period_name, highs, lows):
         sar = talib.SAR(highs, lows)
@@ -93,7 +94,7 @@ class IndicatorSubsystem:
         self.current_indicators[period_name]['stochrsi_fastd'] = fastd[-1]
 
     def calculate_stoch(self, period_name, closing_prices):
-        slowk, slowd = talib.STOCH(self.highs, self.lows, closing_prices, fastk_period=14, slowk_period=2, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        slowk, slowd = talib.STOCH(self.highs, self.lows, closing_prices, fastk_period=14, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
         self.current_indicators[period_name]['stoch_slowk'] = slowk[-1]
         self.current_indicators[period_name]['stoch_slowd'] = slowd[-1]
 
