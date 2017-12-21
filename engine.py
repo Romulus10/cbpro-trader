@@ -359,16 +359,26 @@ class TradeEngine():
                     new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['obv']) > Decimal(indicators[cur_period.name]['obv_ema'])
                     new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['obv']) < Decimal(indicators[cur_period.name]['obv_ema'])
                 else:
-                    # Ranging strategy
-                    new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['stoch_slowk']) > Decimal(indicators[cur_period.name]['stoch_slowd']) and \
-                                                    Decimal(indicators[cur_period.name]['stoch_slowk']) < Decimal('50.0')
-                    new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['stoch_slowk']) < Decimal(indicators[cur_period.name]['stoch_slowd'])
+                    new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['obv']) > Decimal(indicators[cur_period.name]['obv_ema5']) and \
+                                                    Decimal(indicators[cur_period.name]['obv_trend']) > Decimal('0.0')
+                    new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['obv']) < Decimal(indicators[cur_period.name]['obv_ema5'])
 
             if product_id == 'LTC-BTC' or product_id == 'ETH-BTC':
                 ltc_or_eth_fiat_product = self.get_product_by_product_id(product_id[:3] + '-' + self.fiat_currency)
                 btc_fiat_product = self.get_product_by_product_id('BTC-' + self.fiat_currency)
                 new_buy_flag = new_buy_flag and ltc_or_eth_fiat_product.buy_flag
                 new_sell_flag = new_sell_flag and btc_fiat_product.buy_flag
+
+            if self.get_product_by_product_id('LTC-ETH'):
+                ltc_eth_product = self.get_product_by_product_id('LTC-ETH')
+                if product_id == 'LTC-USD':
+                    eth_fiat_product = self.get_product_by_product_id('ETH-' + self.fiat_currency)
+                    new_buy_flag = new_buy_flag and not (ltc_eth_product.sell_flag and eth_fiat_product.buy_flag)
+                    new_sell_flag = new_sell_flag or (ltc_eth_product.sell_flag and eth_fiat_product.buy_flag)
+                elif product_id == 'ETH-USD':
+                    ltc_fiat_product = self.get_product_by_product_id('LTC-' + self.fiat_currency)
+                    new_buy_flag = new_buy_flag and not (ltc_eth_product.buy_flag and ltc_fiat_product.buy_flag)
+                    new_sell_flag = new_sell_flag or (ltc_eth_product.buy_flag and ltc_fiat_product.buy_flag)
 
             if new_buy_flag:
                 if product.sell_flag:
