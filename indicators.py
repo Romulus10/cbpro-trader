@@ -28,17 +28,18 @@ class IndicatorSubsystem:
 
             # self.calculate_bbands(cur_period.name, closing_prices_close)
             # self.calculate_macd(cur_period.name, closing_prices_close)
-            self.calculate_obv(cur_period.name, closing_prices_close, volumes)
+            # self.calculate_obv(cur_period.name, closing_prices_close, volumes)
+            self.calculate_ema(cur_period.name)
             self.calculate_adx(cur_period.name, closing_prices_close)
-            self.calculate_stoch(cur_period.name, closing_prices_close)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
             self.current_indicators[cur_period.name]['total_periods'] = total_periods
 
     def calculate_adx(self, period_name, close):
-        adx = talib.ADX(self.highs, self.lows, close, timeperiod=14)
+        adx = talib.ADX(self.highs, self.lows, close, timeperiod=5)
 
         self.current_indicators[period_name]['adx'] = adx[-1]
+        self.current_indicators[period_name]['adx_trend'] = Decimal(adx[-1]) - Decimal(adx[-2])
 
     def calculate_bbands(self, period_name, close):
         timeperiod = 20
@@ -51,6 +52,14 @@ class IndicatorSubsystem:
 
         self.current_indicators[period_name]['bband_upper_2'] = upperband_2[-1]
         self.current_indicators[period_name]['bband_lower_2'] = lowerband_2[-1]
+
+    def calculate_ema(self, period_name):
+        timeperiod = 10
+        hl2 = (self.highs + self.lows) / 2.0
+
+        ema = talib.EMA(hl2, timeperiod=timeperiod)
+        self.current_indicators[period_name]['ema'] = ema[-1]
+        self.current_indicators[period_name]['ema_trend'] = Decimal(ema[-1]) - Decimal(ema[-2])
 
     def calculate_macd(self, period_name, closing_prices):
         macd, macd_sig, macd_hist = talib.MACD(closing_prices, fastperiod=12,
@@ -74,10 +83,12 @@ class IndicatorSubsystem:
 
     def calculate_obv(self, period_name, closing_prices, volumes):
         obv = talib.OBV(closing_prices, volumes)
-        obv_ema = talib.EMA(obv, timeperiod=3)
+        obv_ema2 = talib.EMA(obv, timeperiod=2)
+        obv_ema6 = talib.EMA(obv, timeperiod=6)
 
-        self.current_indicators[period_name]['obv_ema'] = obv_ema[-1]
-        self.current_indicators[period_name]['obv'] = obv[-1]
+        self.current_indicators[period_name]['obv_ema2'] = obv_ema2[-1]
+        self.current_indicators[period_name]['obv_ema6'] = obv_ema6[-1]
+        self.current_indicators[period_name]['obv_trend'] = (Decimal(obv_ema2[-1]) - Decimal(obv_ema6[-1])) - (Decimal(obv_ema2[-2]) - Decimal(obv_ema6[-2]))
 
     def calculate_sar(self, period_name, highs, lows):
         sar = talib.SAR(highs, lows)
@@ -90,7 +101,7 @@ class IndicatorSubsystem:
         self.current_indicators[period_name]['stochrsi_fastd'] = fastd[-1]
 
     def calculate_stoch(self, period_name, closing_prices):
-        slowk, slowd = talib.STOCH(self.highs, self.lows, closing_prices, fastk_period=14, slowk_period=2, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        slowk, slowd = talib.STOCH(self.highs, self.lows, closing_prices, fastk_period=14, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
         self.current_indicators[period_name]['stoch_slowk'] = slowk[-1]
         self.current_indicators[period_name]['stoch_slowd'] = slowd[-1]
 
