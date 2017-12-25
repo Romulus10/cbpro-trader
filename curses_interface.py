@@ -54,13 +54,11 @@ class cursesDisplay:
             if cur_period.period_size == (60 * 60):
                 self.pad.addstr(starty, 0, "%s - MACD_HIST: %f" %
                                 (cur_period.name, indicators[cur_period.name]['macd_hist']),
-                                self.print_color(Decimal(indicators[cur_period.name]['obv_trend']), Decimal('0.0')))
+                                self.print_color(Decimal(indicators[cur_period.name]['macd_hist']), Decimal('0.0')))
             else:
-                obv_diff = Decimal(indicators[cur_period.name]['obv']) - Decimal(indicators[cur_period.name]['obv_ema5'])
-                self.pad.addstr(starty, 0, "%s - OBV_DIFF: %f OBV_TREND: %f" %
-                                (cur_period.name, obv_diff, indicators[cur_period.name]['obv_trend']),
-                                self.print_color(Decimal(obv_diff), Decimal('0.0'),
-                                                 Decimal(indicators[cur_period.name]['obv_trend']), Decimal('0.0')))
+                self.pad.addstr(starty, 0, "%s - OBV_MACD_HIST: %f" %
+                                (cur_period.name, indicators[cur_period.name]['obv_macd_hist']),
+                                self.print_color(Decimal(indicators[cur_period.name]['obv_macd_hist']), Decimal('0.0')))
             starty += 1
         self.starty = starty + 1
 
