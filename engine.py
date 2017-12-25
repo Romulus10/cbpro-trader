@@ -359,9 +359,8 @@ class TradeEngine():
                     new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['obv']) > Decimal(indicators[cur_period.name]['obv_ema'])
                     new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['obv']) < Decimal(indicators[cur_period.name]['obv_ema'])
                 else:
-                    new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['obv']) > Decimal(indicators[cur_period.name]['obv_ema5']) and \
-                                                    Decimal(indicators[cur_period.name]['obv_trend']) > Decimal('0.0')
-                    new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['obv']) < Decimal(indicators[cur_period.name]['obv_ema5'])
+                    new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['obv_macd_hist']) > Decimal('0.0')
+                    new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['obv_macd_hist']) < Decimal('0.0')
 
             if product_id == 'LTC-BTC' or product_id == 'ETH-BTC':
                 ltc_or_eth_fiat_product = self.get_product_by_product_id(product_id[:3] + '-' + self.fiat_currency)
