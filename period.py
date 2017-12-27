@@ -13,6 +13,7 @@ import pytz
 import logging
 import time
 import copy
+import requests
 from decimal import Decimal
 
 
@@ -115,7 +116,10 @@ class Period:
         while not isinstance(ret, list):
             try:
                 time.sleep(3)
-                ret = gdax_client.get_product_historic_rates(self.product, granularity=self.period_size, start=start_iso, end=end_iso)
+                if self.period_size == (60 * 5):
+                    ret = requests.get('hostname', params={'start': start_iso, 'end': end_iso, 'granularity': (self.period_size / 60)}).json()
+                else:
+                    ret = gdax_client.get_product_historic_rates(self.product, granularity=self.period_size, start=start_iso, end=end_iso)
             except Exception:
                 self.error_logger.exception(datetime.datetime.now())
         hist_data = np.array(ret, dtype='object')
