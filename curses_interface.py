@@ -56,7 +56,7 @@ class cursesDisplay:
                                 (cur_period.name, indicators[cur_period.name]['macd_hist']),
                                 self.print_color(Decimal(indicators[cur_period.name]['obv_trend']), Decimal('0.0')))
             else:
-                obv_diff = Decimal(indicators[cur_period.name]['obv']) - Decimal(indicators[cur_period.name]['obv_ema5'])
+                obv_diff = Decimal(indicators[cur_period.name]['obv_ema2']) - Decimal(indicators[cur_period.name]['obv_ema6'])
                 self.pad.addstr(starty, 0, "%s - OBV_DIFF: %f OBV_TREND: %f" %
                                 (cur_period.name, obv_diff, indicators[cur_period.name]['obv_trend']),
                                 self.print_color(Decimal(obv_diff), Decimal('0.0'),
