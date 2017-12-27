@@ -37,6 +37,9 @@ class IndicatorSubsystem:
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
             self.current_indicators[cur_period.name]['total_periods'] = total_periods
 
+            self.logger.debug("[INDICATORS %s] Periods: %d : MACD_HIST: %f" %
+                              (cur_period.name, self.current_indicators[cur_period.name]['total_periods'], self.current_indicators[cur_period.name]['macd_hist']))
+
     def calculate_adx(self, period_name, close):
         adx = talib.ADX(self.highs, self.lows, close, timeperiod=14)
 
@@ -76,9 +79,11 @@ class IndicatorSubsystem:
 
     def calculate_obv(self, period_name, closing_prices, volumes):
         obv = talib.OBV(closing_prices, volumes)
-        obv_macd, obv_macd_sig, obv_macd_hist = talib.MACD(obv, fastperiod=6,
-                                                           slowperiod=18, signalperiod=9)
-        self.current_indicators[period_name]['obv_macd_hist'] = obv_macd_hist[-1]
+        obv_ema5 = talib.EMA(obv, timeperiod=6)
+
+        self.current_indicators[period_name]['obv'] = obv[-1]
+        self.current_indicators[period_name]['obv_ema5'] = obv_ema5[-1]
+        self.current_indicators[period_name]['obv_trend'] = (Decimal(obv[-1]) - Decimal(obv_ema5[-1])) - (Decimal(obv[-2]) - Decimal(obv_ema5[-2]))
 
     def calculate_sar(self, period_name, highs, lows):
         sar = talib.SAR(highs, lows)
