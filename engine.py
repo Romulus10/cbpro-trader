@@ -366,29 +366,42 @@ class TradeEngine():
                 new_buy_flag = new_buy_flag and ltc_or_eth_fiat_product.buy_flag
                 new_sell_flag = new_sell_flag and btc_fiat_product.buy_flag
 
+            if self.get_product_by_product_id('LTC-ETH'):
+                ltc_eth_product = self.get_product_by_product_id('LTC-ETH')
+                if product_id == 'LTC-USD':
+                    eth_fiat_product = self.get_product_by_product_id('ETH-' + self.fiat_currency)
+                    new_buy_flag = new_buy_flag and not (ltc_eth_product.sell_flag and eth_fiat_product.buy_flag)
+                    new_sell_flag = new_sell_flag or (ltc_eth_product.sell_flag and eth_fiat_product.buy_flag)
+                elif product_id == 'ETH-USD':
+                    ltc_fiat_product = self.get_product_by_product_id('LTC-' + self.fiat_currency)
+                    new_buy_flag = new_buy_flag and not (ltc_eth_product.buy_flag and ltc_fiat_product.buy_flag)
+                    new_sell_flag = new_sell_flag or (ltc_eth_product.buy_flag and ltc_fiat_product.buy_flag)
+
             if new_buy_flag:
                 if product.sell_flag:
                     product.last_signal_switch = time.time()
                 product.sell_flag = False
                 product.buy_flag = True
-                amount = self.get_quoted_currency_from_product_id(product_id)
-                bid = product.order_book.get_ask() - Decimal(product.quote_increment)
-                amount = self.round_coin(Decimal(amount) / Decimal(bid))
-                # Throttle to prevent flip flopping over trade signal
-                if amount >= Decimal(product.min_size) and (time.time() - product.last_signal_switch) > 60.0:
-                    if not product.order_in_progress:
-                        product.order_thread = threading.Thread(target=self.buy, name='buy_thread', kwargs={'product': product})
-                        product.order_thread.start()
+                if not product.meta:
+                    amount = self.get_quoted_currency_from_product_id(product_id)
+                    bid = product.order_book.get_ask() - Decimal(product.quote_increment)
+                    amount = self.round_coin(Decimal(amount) / Decimal(bid))
+                    # Throttle to prevent flip flopping over trade signal
+                    if amount >= Decimal(product.min_size) and (time.time() - product.last_signal_switch) > 60.0:
+                        if not product.order_in_progress:
+                            product.order_thread = threading.Thread(target=self.buy, name='buy_thread', kwargs={'product': product})
+                            product.order_thread.start()
             elif new_sell_flag:
                 if product.buy_flag:
                     product.last_signal_switch = time.time()
                 product.buy_flag = False
                 product.sell_flag = True
-                # Throttle to prevent flip flopping over trade signal
-                if amount_of_coin >= Decimal(product.min_size) and (time.time() - product.last_signal_switch) > 60.0:
-                    if not product.order_in_progress:
-                        product.order_thread = threading.Thread(target=self.sell, name='sell_thread', kwargs={'product': product})
-                        product.order_thread.start()
+                if not product.meta:
+                    # Throttle to prevent flip flopping over trade signal
+                    if amount_of_coin >= Decimal(product.min_size) and (time.time() - product.last_signal_switch) > 60.0:
+                        if not product.order_in_progress:
+                            product.order_thread = threading.Thread(target=self.sell, name='sell_thread', kwargs={'product': product})
+                            product.order_thread.start()
             else:
                 product.buy_flag = False
                 product.sell_flag = False
