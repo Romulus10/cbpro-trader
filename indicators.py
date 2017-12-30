@@ -26,17 +26,11 @@ class IndicatorSubsystem:
             self.lows = np.append(cur_period.get_lows(), cur_period.cur_candlestick.low)
             volumes = np.append(cur_period.get_volumes(), cur_period.cur_candlestick.volume)
 
-            # self.calculate_bbands(cur_period.name, closing_prices_close)
-            self.calculate_macd(cur_period.name, closing_prices_close)
             self.calculate_obv(cur_period.name, closing_prices_close, volumes)
-            self.calculate_adx(cur_period.name, closing_prices_close)
             self.calculate_stoch(cur_period.name, closing_prices_close)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
             self.current_indicators[cur_period.name]['total_periods'] = total_periods
-
-            self.logger.debug("[INDICATORS %s] Periods: %d : MACD_HIST: %f" %
-                              (cur_period.name, self.current_indicators[cur_period.name]['total_periods'], self.current_indicators[cur_period.name]['macd_hist']))
 
     def calculate_adx(self, period_name, close):
         adx = talib.ADX(self.highs, self.lows, close, timeperiod=14)
@@ -77,10 +71,12 @@ class IndicatorSubsystem:
 
     def calculate_obv(self, period_name, closing_prices, volumes):
         obv = talib.OBV(closing_prices, volumes)
-        obv_ema = talib.EMA(obv, timeperiod=3)
+        obv_ema2 = talib.EMA(obv, timeperiod=2)
+        obv_ema6 = talib.EMA(obv, timeperiod=6)
 
-        self.current_indicators[period_name]['obv_ema'] = obv_ema[-1]
         self.current_indicators[period_name]['obv'] = obv[-1]
+        self.current_indicators[period_name]['obv_ema2'] = obv_ema2[-1]
+        self.current_indicators[period_name]['obv_ema6'] = obv_ema6[-1]
 
     def calculate_sar(self, period_name, highs, lows):
         sar = talib.SAR(highs, lows)
@@ -93,7 +89,7 @@ class IndicatorSubsystem:
         self.current_indicators[period_name]['stochrsi_fastd'] = fastd[-1]
 
     def calculate_stoch(self, period_name, closing_prices):
-        slowk, slowd = talib.STOCH(self.highs, self.lows, closing_prices, fastk_period=14, slowk_period=2, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        slowk, slowd = talib.STOCH(self.highs, self.lows, closing_prices, fastk_period=7, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
         self.current_indicators[period_name]['stoch_slowk'] = slowk[-1]
         self.current_indicators[period_name]['stoch_slowd'] = slowd[-1]
 

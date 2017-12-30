@@ -102,7 +102,7 @@ class Period:
         self.candlesticks = self.candlesticks[:-1]
         self.cur_candlestick_start = self.cur_candlestick.time
 
-    def get_historical_data(self, num_periods=200):
+    def get_historical_data(self, num_periods=50):
         gdax_client = gdax.PublicClient()
 
         end = datetime.datetime.utcnow()
@@ -116,8 +116,9 @@ class Period:
         while not isinstance(ret, list):
             try:
                 time.sleep(3)
-                if self.period_size == (60 * 5):
-                    ret = requests.get('hostname', params={'start': start_iso, 'end': end_iso, 'granularity': (self.period_size / 60)}).json()
+                if self.period_size == (60 * 15):
+                    url = 'http://gdax.mjcardillo.com/products/' + self.product + '/candles/'
+                    ret = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '15'}).json()
                 else:
                     ret = gdax_client.get_product_historic_rates(self.product, granularity=self.period_size, start=start_iso, end=end_iso)
             except Exception:
