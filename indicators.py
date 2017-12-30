@@ -35,9 +35,6 @@ class IndicatorSubsystem:
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
             self.current_indicators[cur_period.name]['total_periods'] = total_periods
 
-            self.logger.debug("[INDICATORS %s] Periods: %d : MACD_HIST: %f" %
-                              (cur_period.name, self.current_indicators[cur_period.name]['total_periods'], self.current_indicators[cur_period.name]['macd_hist']))
-
     def calculate_adx(self, period_name, close):
         adx = talib.ADX(self.highs, self.lows, close, timeperiod=14)
 
