@@ -22,12 +22,11 @@ class IndicatorSubsystem:
         if total_periods > 0:
             closing_prices = cur_period.get_closing_prices()
             closing_prices_close = np.append(closing_prices, cur_period.cur_candlestick.close)
-            self.highs = np.append(cur_period.get_highs(), cur_period.cur_candlestick.high)
-            self.lows = np.append(cur_period.get_lows(), cur_period.cur_candlestick.low)
+            # self.highs = np.append(cur_period.get_highs(), cur_period.cur_candlestick.high)
+            # self.lows = np.append(cur_period.get_lows(), cur_period.cur_candlestick.low)
             volumes = np.append(cur_period.get_volumes(), cur_period.cur_candlestick.volume)
 
-            self.calculate_obv(cur_period.name, closing_prices_close, volumes)
-            self.calculate_stoch(cur_period.name, closing_prices_close)
+            self.calculate_vwap(cur_period.name, closing_prices_close, volumes)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
             self.current_indicators[cur_period.name]['total_periods'] = total_periods
@@ -56,6 +55,11 @@ class IndicatorSubsystem:
         self.current_indicators[period_name]['macd_sig'] = macd_sig[-1]
         self.current_indicators[period_name]['macd_hist'] = macd_hist[-1]
         self.current_indicators[period_name]['macd_hist_diff'] = Decimal(macd_hist[-1]) - Decimal(macd_hist[-2])
+
+    def calculate_vwap(self, period_name, closing_prices, volumes):
+        vwap = np.average(closing_prices, weights=volumes)
+
+        self.current_indicators[period_name]['vwap'] = vwap
 
     def calculate_vol_macd(self, period_name, volumes):
         macd, macd_sig, macd_hist = talib.MACD(volumes, fastperiod=50,

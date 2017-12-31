@@ -355,10 +355,8 @@ class TradeEngine():
             new_sell_flag = False
             for cur_period in period_list:
                 # Trending strategy
-                new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['obv']) > Decimal(indicators[cur_period.name]['obv_ema6']) and \
-                               Decimal(indicators[cur_period.name]['stoch_slowk']) > Decimal(indicators[cur_period.name]['stoch_slowd'])
-                new_sell_flag = new_sell_flag or (Decimal(indicators[cur_period.name]['stoch_slowk']) < Decimal(indicators[cur_period.name]['stoch_slowd']) and
-                                                  Decimal(indicators[cur_period.name]['stoch_slowk']) < Decimal('98.0'))
+                new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['close']) > Decimal(indicators[cur_period.name]['vwap'])
+                new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['close']) < Decimal(indicators[cur_period.name]['vwap'])
 
             if product_id == 'LTC-BTC' or product_id == 'ETH-BTC':
                 ltc_or_eth_fiat_product = self.get_product_by_product_id(product_id[:3] + '-' + self.fiat_currency)
