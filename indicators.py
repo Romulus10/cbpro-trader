@@ -57,6 +57,9 @@ class IndicatorSubsystem:
         self.current_indicators[period_name]['macd_hist_diff'] = Decimal(macd_hist[-1]) - Decimal(macd_hist[-2])
 
     def calculate_vwap(self, period_name, closing_prices, volumes):
+        if len(closing_prices) > 180:
+            closing_prices = closing_prices[-180:]
+            volumes = volumes[-180:]
         vwap = np.average(closing_prices, weights=volumes)
 
         self.current_indicators[period_name]['vwap'] = vwap
