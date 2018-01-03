@@ -116,9 +116,9 @@ class Period:
         while not isinstance(ret, list):
             try:
                 time.sleep(3)
-                if self.period_size == (60 * 15):
+                if self.period_size == (60 * 60):
                     url = 'http://gdax.mjcardillo.com/products/' + self.product + '/candles/'
-                    ret = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '15'}).json()
+                    ret = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '60'}).json()
                 else:
                     ret = gdax_client.get_product_historic_rates(self.product, granularity=self.period_size, start=start_iso, end=end_iso)
             except Exception:
