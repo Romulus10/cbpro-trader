@@ -119,6 +119,9 @@ class Period:
                 if self.period_size == (60 * 60):
                     url = 'http://gdax.mjcardillo.com/products/' + self.product + '/candles/'
                     ret = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '60'}).json()
+                elif self.period_size == (60 * 240):
+                    url = 'http://gdax.mjcardillo.com/products/' + self.product + '/candles/'
+                    ret = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '240'}).json()
                 else:
                     ret = gdax_client.get_product_historic_rates(self.product, granularity=self.period_size, start=start_iso, end=end_iso)
             except Exception:
@@ -225,15 +228,25 @@ class MetaPeriod(Period):
         start = end - datetime.timedelta(seconds=(self.period_size * num_periods))
         start_iso = start.isoformat()
 
-        ret_base = gdax_client.get_product_historic_rates(self.base, granularity=self.period_size, start=start_iso, end=end_iso)
-        ret_quoted = gdax_client.get_product_historic_rates(self.quoted, granularity=self.period_size, start=start_iso, end=end_iso)
+        ret_base = None
+        ret_quoted = None
         # Check if we got rate limited, which will return a JSON message
         while not isinstance(ret_base, list):
             time.sleep(3)
-            ret_base = gdax_client.get_product_historic_rates(self.base, granularity=self.period_size, start=start_iso, end=end_iso)
+            if self.period_size == (60 * 60):
+                url = 'http://gdax.mjcardillo.com/products/' + self.base + '/candles/'
+                ret_base = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '60'}).json()
+            elif self.period_size == (60 * 240):
+                url = 'http://gdax.mjcardillo.com/products/' + self.base + '/candles/'
+                ret_base = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '240'}).json()
         while not isinstance(ret_quoted, list):
             time.sleep(3)
-            ret_quoted = gdax_client.get_product_historic_rates(self.quoted, granularity=self.period_size, start=start_iso, end=end_iso)
+            if self.period_size == (60 * 60):
+                url = 'http://gdax.mjcardillo.com/products/' + self.quoted + '/candles/'
+                ret_quoted = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '60'}).json()
+            elif self.period_size == (60 * 240):
+                url = 'http://gdax.mjcardillo.com/products/' + self.quoted + '/candles/'
+                ret_quoted = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '240'}).json()
         hist_data_base = np.array(ret_base, dtype='object')
         hist_data_quoted = np.array(ret_quoted, dtype='object')
         array_size = min(len(ret_base), len(ret_quoted))
