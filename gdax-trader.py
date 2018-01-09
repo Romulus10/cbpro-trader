@@ -112,8 +112,9 @@ interface = curses_interface.cursesDisplay(enable=curses_enable)
 while(True):
     try:
         if gdax_websocket.error:
+            gdax_websocket.error = None
             raise gdax_websocket.error
-        msg = gdax_websocket.websocket_queue.get(timeout=15)
+        msg = gdax_websocket.websocket_queue.get(timeout=30)
         for product in trade_engine.products:
             product.order_book.process_message(msg)
         if msg.get('type') == "match":
@@ -140,10 +141,10 @@ while(True):
         interface.close()
         break
     except Exception as e:
+        gdax_websocket.error = None
         error_logger.exception(datetime.datetime.now())
         trade_engine.close()
         gdax_websocket.close()
-        gdax_websocket.error = None
         # Period data cannot be trusted. Re-initialize
         for cur_period in indicator_period_list:
             cur_period.initialize()
