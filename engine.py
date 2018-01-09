@@ -387,7 +387,7 @@ class TradeEngine():
                     bid = product.order_book.get_ask() - Decimal(product.quote_increment)
                     amount = self.round_coin(Decimal(amount) / Decimal(bid))
                     # Throttle to prevent flip flopping over trade signal
-                    if amount >= Decimal(product.min_size) and (time.time() - product.last_signal_switch) > 60.0:
+                    if amount >= Decimal(product.min_size) and (time.time() - product.last_signal_switch) > 180.0:
                         if not product.order_in_progress:
                             product.order_thread = threading.Thread(target=self.buy, name='buy_thread', kwargs={'product': product})
                             product.order_thread.start()
@@ -398,7 +398,7 @@ class TradeEngine():
                 product.sell_flag = True
                 if not product.meta:
                     # Throttle to prevent flip flopping over trade signal
-                    if amount_of_coin >= Decimal(product.min_size) and (time.time() - product.last_signal_switch) > 60.0:
+                    if amount_of_coin >= Decimal(product.min_size) and (time.time() - product.last_signal_switch) > 180.0:
                         if not product.order_in_progress:
                             product.order_thread = threading.Thread(target=self.sell, name='sell_thread', kwargs={'product': product})
                             product.order_thread.start()
