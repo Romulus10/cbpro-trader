@@ -29,7 +29,7 @@ class IndicatorSubsystem:
             # self.calculate_bbands(cur_period.name, closing_prices_close)
             if cur_period.period_size == (60 * 60):
                 self.calculate_macd(cur_period.name, closing_prices_close)
-            else:
+            elif cur_period.period_size == (60 * 240):
                 self.calculate_obv(cur_period.name, closing_prices_close, volumes)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
@@ -74,9 +74,10 @@ class IndicatorSubsystem:
 
     def calculate_obv(self, period_name, closing_prices, volumes):
         obv = talib.OBV(closing_prices, volumes)
-        obv_ema2 = talib.EMA(obv, timeperiod=2)
-        obv_ema6 = talib.EMA(obv, timeperiod=6)
+        obv_ema2 = talib.SMA(obv, timeperiod=2)
+        obv_ema6 = talib.SMA(obv, timeperiod=7)
 
+        self.current_indicators[period_name]['obv'] = obv[-1]
         self.current_indicators[period_name]['obv_ema2'] = obv_ema2[-1]
         self.current_indicators[period_name]['obv_ema6'] = obv_ema6[-1]
         self.current_indicators[period_name]['obv_trend'] = (Decimal(obv_ema2[-1]) - Decimal(obv_ema6[-1])) - (Decimal(obv_ema2[-2]) - Decimal(obv_ema6[-2]))
