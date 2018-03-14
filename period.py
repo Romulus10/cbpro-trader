@@ -5,7 +5,6 @@
 # Classes relating to time period data
 
 import numpy as np
-import gdax
 import datetime
 import dateutil.parser
 import trade
@@ -103,8 +102,6 @@ class Period:
         self.cur_candlestick_start = self.cur_candlestick.time
 
     def get_historical_data(self, num_periods=50):
-        gdax_client = gdax.PublicClient()
-
         end = datetime.datetime.utcnow()
         end_iso = end.isoformat()
         start = end - datetime.timedelta(seconds=(self.period_size * num_periods))
@@ -116,14 +113,8 @@ class Period:
         while not isinstance(ret, list):
             try:
                 time.sleep(3)
-                if self.period_size == (60 * 60):
-                    url = 'http://gdax.mjcardillo.com/products/' + self.product + '/candles/'
-                    ret = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '60'}).json()
-                elif self.period_size == (60 * 240):
-                    url = 'http://gdax.mjcardillo.com/products/' + self.product + '/candles/'
-                    ret = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '240'}).json()
-                else:
-                    ret = gdax_client.get_product_historic_rates(self.product, granularity=self.period_size, start=start_iso, end=end_iso)
+                url = 'http://gdax.mjcardillo.com/products/' + self.product + '/candles/'
+                ret = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': int(self.period_size / 60)}).json()
             except Exception:
                 self.error_logger.exception(datetime.datetime.now())
         hist_data = np.array(ret, dtype='object')
@@ -221,32 +212,23 @@ class MetaPeriod(Period):
         super(MetaPeriod, self).process_trade(msg=newmsg)
 
     def get_historical_data(self, num_periods=200):
-        gdax_client = gdax.PublicClient()
-
         end = datetime.datetime.utcnow()
         end_iso = end.isoformat()
         start = end - datetime.timedelta(seconds=(self.period_size * num_periods))
         start_iso = start.isoformat()
 
-        ret_base = None
-        ret_quoted = None
+        base_url = 'http://gdax.mjcardillo.com/products/' + self.base + '/candles/'
+        quoted_url = 'http://gdax.mjcardillo.com/products/' + self.quoted + '/candles/'
+
+        ret_base = requests.get(base_url, params={'start': start_iso, 'end': end_iso, 'granularity': int(self.period_size / 60)}).json()
+        ret_quoted = requests.get(quoted_url, params={'start': start_iso, 'end': end_iso, 'granularity': int(self.period_size / 60)}).json()
         # Check if we got rate limited, which will return a JSON message
         while not isinstance(ret_base, list):
             time.sleep(3)
-            if self.period_size == (60 * 60):
-                url = 'http://gdax.mjcardillo.com/products/' + self.base + '/candles/'
-                ret_base = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '60'}).json()
-            elif self.period_size == (60 * 240):
-                url = 'http://gdax.mjcardillo.com/products/' + self.base + '/candles/'
-                ret_base = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '240'}).json()
+            ret_base = requests.get(base_url, params={'start': start_iso, 'end': end_iso, 'granularity': int(self.period_size / 60)}).json()
         while not isinstance(ret_quoted, list):
             time.sleep(3)
-            if self.period_size == (60 * 60):
-                url = 'http://gdax.mjcardillo.com/products/' + self.quoted + '/candles/'
-                ret_quoted = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '60'}).json()
-            elif self.period_size == (60 * 240):
-                url = 'http://gdax.mjcardillo.com/products/' + self.quoted + '/candles/'
-                ret_quoted = requests.get(url, params={'start': start_iso, 'end': end_iso, 'granularity': '240'}).json()
+            ret_quoted = requests.get(quoted_url, params={'start': start_iso, 'end': end_iso, 'granularity': int(self.period_size / 60)}).json()
         hist_data_base = np.array(ret_base, dtype='object')
         hist_data_quoted = np.array(ret_quoted, dtype='object')
         array_size = min(len(ret_base), len(ret_quoted))
