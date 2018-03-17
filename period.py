@@ -107,7 +107,9 @@ class Period:
         self.candlesticks = self.candlesticks[:-1]
         self.cur_candlestick_start = self.cur_candlestick.time
 
-    def get_historical_data(self, num_periods=50):
+    def get_historical_data(self, num_periods=100):
+        if self.period_size == (60 * 5):
+            num_periods = 200
         end = datetime.datetime.utcnow()
         end_iso = end.isoformat()
         start = end - datetime.timedelta(seconds=(self.period_size * num_periods))
