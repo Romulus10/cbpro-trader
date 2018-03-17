@@ -15,7 +15,6 @@ import curses_interface
 import logging
 import datetime
 from decimal import Decimal
-import gc
 from websocket import WebSocketConnectionClosedException
 
 
@@ -70,8 +69,6 @@ if config['frontend'] == 'debug':
     logger.addHandler(logging.StreamHandler())
 error_logger = logging.getLogger('error-logger')
 error_logger.addHandler(logging.FileHandler("error.log"))
-
-gc.disable()
 
 # Periods to update indicators for
 indicator_period_list = []
