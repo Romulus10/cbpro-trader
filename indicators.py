@@ -30,10 +30,9 @@ class IndicatorSubsystem:
             # self.calculate_bbands(cur_period.name, closing_prices_close)
             # self.calculate_macd(cur_period.name, closing_prices_close)
             # self.calculate_obv(cur_period.name, closing_prices_close, volumes)
-            if cur_period.period_size == (60 * 5):
+            if cur_period.period_size == (60 * 30):
                 self.calculate_ema(cur_period.name)
-            else:
-                self.calculate_adx(cur_period.name, closing_prices_close)
+            self.calculate_adx(cur_period.name, closing_prices_close)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
 
@@ -56,7 +55,7 @@ class IndicatorSubsystem:
         self.current_indicators[period_name]['bband_lower_2'] = lowerband_2[-1]
 
     def calculate_ema(self, period_name):
-        timeperiod = 50
+        timeperiod = 30
         hl2 = (self.highs + self.lows) / 2.0
 
         ema = talib.EMA(hl2, timeperiod=timeperiod)
