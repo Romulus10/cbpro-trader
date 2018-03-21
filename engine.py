@@ -353,12 +353,11 @@ class TradeEngine():
             new_buy_flag = True
             new_sell_flag = False
             for cur_period in period_list:
-                if cur_period.period_size == (60 * 30):
-                    new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['ema_trend']) > Decimal('0.0')
-                    new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['ema_trend']) < Decimal('0.0')
                 new_buy_flag = new_buy_flag and Decimal(indicators[cur_period.name]['adx']) > Decimal('20.0') and \
-                                                Decimal(indicators[cur_period.name]['adx_trend']) > Decimal('0.0')
-                new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['adx']) < Decimal('20.0')
+                                                Decimal(indicators[cur_period.name]['adx_trend']) > Decimal('0.0') and \
+                                                Decimal(indicators[cur_period.name]['plus_di']) > Decimal(indicators[cur_period.name]['minus_di'])
+                new_sell_flag = new_sell_flag or Decimal(indicators[cur_period.name]['adx']) < Decimal('20.0') or \
+                                                 Decimal(indicators[cur_period.name]['plus_di']) < Decimal(indicators[cur_period.name]['minus_di'])
 
             if product_id == 'LTC-BTC' or product_id == 'ETH-BTC':
                 ltc_or_eth_fiat_product = self.get_product_by_product_id(product_id[:3] + '-' + self.fiat_currency)

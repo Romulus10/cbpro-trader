@@ -29,18 +29,22 @@ class IndicatorSubsystem:
             # self.calculate_bbands(cur_period.name, closing_prices_close)
             # self.calculate_macd(cur_period.name, closing_prices_close)
             # self.calculate_obv(cur_period.name, closing_prices_close, volumes)
-            if cur_period.period_size == (60 * 30):
-                self.calculate_ema(cur_period.name)
+            # self.calculate_ema(cur_period.name)
             self.calculate_adx(cur_period.name, closing_prices_close)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
             self.current_indicators[cur_period.name]['total_periods'] = total_periods
 
     def calculate_adx(self, period_name, close):
-        adx = talib.ADX(self.highs, self.lows, close, timeperiod=10)
+        timeperiod = 14
+        adx = talib.ADX(self.highs, self.lows, close, timeperiod=timeperiod)
+        plus_di = talib.PLUS_DI(self.highs, self.lows, close, timeperiod=timeperiod)
+        minus_di = talib.MINUS_DI(self.highs, self.lows, close, timeperiod=timeperiod)
 
         self.current_indicators[period_name]['adx'] = adx[-1]
         self.current_indicators[period_name]['adx_trend'] = Decimal(adx[-1]) - Decimal(adx[-2])
+        self.current_indicators[period_name]['plus_di'] = Decimal(plus_di[-1])
+        self.current_indicators[period_name]['minus_di'] = Decimal(minus_di[-1])
 
     def calculate_bbands(self, period_name, close):
         timeperiod = 20
