@@ -29,15 +29,14 @@ class IndicatorSubsystem:
             # self.calculate_bbands(cur_period.name, closing_prices_close)
             # self.calculate_macd(cur_period.name, closing_prices_close)
             # self.calculate_obv(cur_period.name, closing_prices_close, volumes)
-            if cur_period.period_size == (60 * 30):
-                self.calculate_ema(cur_period.name)
+            self.calculate_ema(cur_period.name)
             self.calculate_adx(cur_period.name, closing_prices_close)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
             self.current_indicators[cur_period.name]['total_periods'] = total_periods
 
     def calculate_adx(self, period_name, close):
-        adx = talib.ADX(self.highs, self.lows, close, timeperiod=10)
+        adx = talib.ADX(self.highs, self.lows, close, timeperiod=14)
 
         self.current_indicators[period_name]['adx'] = adx[-1]
         self.current_indicators[period_name]['adx_trend'] = Decimal(adx[-1]) - Decimal(adx[-2])
@@ -58,9 +57,12 @@ class IndicatorSubsystem:
         timeperiod = 30
         hl2 = (self.highs + self.lows) / 2.0
 
-        ema = talib.EMA(hl2, timeperiod=timeperiod)
-        self.current_indicators[period_name]['ema'] = ema[-1]
-        self.current_indicators[period_name]['ema_trend'] = Decimal(ema[-1]) - Decimal(ema[-2])
+        ema3 = talib.EMA(hl2, timeperiod=3)
+        ema6 = talib.EMA(hl2, timeperiod=6)
+        self.current_indicators[period_name]['ema3'] = ema3[-1]
+        self.current_indicators[period_name]['ema3_trend'] = Decimal(ema3[-1]) - Decimal(ema3[-2])
+        self.current_indicators[period_name]['ema6'] = ema6[-1]
+        self.current_indicators[period_name]['ema6_trend'] = Decimal(ema6[-1]) - Decimal(ema6[-2])
 
     def calculate_macd(self, period_name, closing_prices):
         macd, macd_sig, macd_hist = talib.MACD(closing_prices, fastperiod=12,
