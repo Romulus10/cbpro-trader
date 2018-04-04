@@ -112,10 +112,10 @@ fiat_currency = config['fiat']
 for cur_period in config['periods']:
     if cur_period.get('meta'):
         new_period = period.MetaPeriod(period_size=(60 * cur_period['length']), fiat=fiat_currency,
-                                       product=cur_period['product'], name=cur_period['name'])
+                                       product=cur_period['product'], name=cur_period['name'], initialize=not config['backtest'])
     else:
         new_period = period.Period(period_size=(60 * cur_period['length']),
-                                   product=cur_period['product'], name=cur_period['name'])
+                                   product=cur_period['product'], name=cur_period['name'], initialize=not config['backtest'])
     indicator_period_list.append(new_period)
     product_list.add(cur_period['product'])
     if cur_period['trade']:

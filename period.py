@@ -5,7 +5,7 @@
 # Classes relating to time period data
 
 import numpy as np
-import cbpro 
+import cbpro
 import datetime
 import dateutil.parser
 import trade
@@ -92,8 +92,13 @@ class Period:
         self.error_logger = logging.getLogger('error-logger')
         if initialize:
             self.initialize()
+            # GDAX historical data is not up-to-date
+            # We need to update data 10 minutes after closing the first period
+            self.updated_hist_data = False
+            self.time_of_first_candlestick_close = None
         else:
             self.candlesticks = np.array([])
+            self.updated_hist_data = True
 
     def initialize(self):
         self.candlesticks = self.get_historical_data()
