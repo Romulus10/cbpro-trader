@@ -80,7 +80,7 @@ class BacktestFakeWebsocket(TradeAndHeartbeatWebsocket):
         def _go():
             newest_trade = min(self.current_trades, key=lambda x: self.current_trades.get(x).get('time'))
             while newest_trade:
-                self.websocket_queue.put(self.current_trades.get(self.newest_trade))
+                self.websocket_queue.put(self.current_trades.get(newest_trade))
                 self.current_trades[newest_trade] = self.cursor_dict[newest_trade].next()
                 newest_trade = min(self.current_trades, key=lambda x: self.current_trades.get(x).get('time'))
 
