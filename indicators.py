@@ -19,7 +19,7 @@ class IndicatorSubsystem:
 
     def recalculate_indicators(self, cur_period):
         total_periods = len(cur_period.candlesticks)
-        if total_periods > 0:
+        if total_periods > 20:
             closing_prices = cur_period.get_closing_prices()
             closing_prices_close = np.append(closing_prices, cur_period.cur_candlestick.close)
             self.highs = np.append(cur_period.get_highs(), cur_period.cur_candlestick.high)

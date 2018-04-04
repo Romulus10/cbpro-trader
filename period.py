@@ -20,9 +20,14 @@ class Candlestick:
     def __init__(self, isotime=None, existing_candlestick=None, prev_close=None):
         self.logger = logging.getLogger('trader-logger')
         self.new = True
+        self.time = None
+        self.open = None
+        self.high = None
+        self.low = None
+        self.close = None
+        self.volume = 0
         if isotime:
             self.time = isotime.replace(second=0, microsecond=0)
-            self.volume = 0
             if prev_close:
                 self.open = prev_close
                 self.high = prev_close
@@ -30,10 +35,6 @@ class Candlestick:
                 self.close = prev_close
             else:
                 self.time = isotime.replace(second=0, microsecond=0)
-                self.open = None
-                self.high = None
-                self.low = None
-                self.close = None
 
         elif existing_candlestick is not None:
             self.new = False
@@ -41,6 +42,9 @@ class Candlestick:
 
     def add_trade(self, new_trade):
         self.new = False
+        if not self.time:
+            self.time = pytz.utc.localize(new_trade.time.replace(second=0, microsecond=0))
+
         if not self.open:
             self.open = new_trade.price
 
@@ -94,6 +98,7 @@ class Period:
             self.time_of_first_candlestick_close = None
         else:
             self.candlesticks = np.array([])
+            self.cur_candlestick = Candlestick()
             self.updated_hist_data = True
 
     def initialize(self):
@@ -150,13 +155,14 @@ class Period:
             cur_trade = trade.Trade(msg)
             isotime = dateutil.parser.parse(str(msg.get('time'))).replace(microsecond=0)
             isotime = pytz.utc.localize(isotime)
-            if isotime < self.cur_candlestick.time:
+            if not self.cur_candlestick.new and isotime < self.cur_candlestick.time:
                 prev_stick = Candlestick(existing_candlestick=self.candlesticks[-1])
                 self.candlesticks = self.candlesticks[:-1]
                 prev_stick.add_trade(cur_trade)
                 self.add_stick(prev_stick)
             else:
-                if isotime > self.cur_candlestick.time + datetime.timedelta(seconds=self.period_size):
+                if not self.cur_candlestick.new and \
+                   isotime > self.cur_candlestick.time + datetime.timedelta(seconds=self.period_size):
                     self.close_candlestick()
                     self.new_candlestick(self.cur_candlestick.time + datetime.timedelta(seconds=self.period_size))
                 self.cur_candlestick.add_trade(cur_trade)
