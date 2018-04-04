@@ -84,16 +84,17 @@ class Period:
         self.product = product
         self.first_trade = True
         self.verbose_heartbeat = False
-        # GDAX historical data is not up-to-date
-        # We need to update data 10 minutes after closing the first period
-        self.updated_hist_data = False
-        self.time_of_first_candlestick_close = None
         self.logger = logging.getLogger('trader-logger')
         self.error_logger = logging.getLogger('error-logger')
         if initialize:
             self.initialize()
+            # GDAX historical data is not up-to-date
+            # We need to update data 10 minutes after closing the first period
+            self.updated_hist_data = False
+            self.time_of_first_candlestick_close = None
         else:
             self.candlesticks = np.array([])
+            self.updated_hist_data = True
 
     def initialize(self):
         self.candlesticks = self.get_historical_data()
