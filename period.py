@@ -148,7 +148,8 @@ class Period:
     def process_trade(self, msg):
         if msg.get('product_id') == self.product:
             cur_trade = trade.Trade(msg)
-            isotime = dateutil.parser.parse(msg.get('time')).replace(microsecond=0)
+            isotime = dateutil.parser.parse(str(msg.get('time'))).replace(microsecond=0)
+            isotime = pytz.utc.localize(isotime)
             if isotime < self.cur_candlestick.time:
                 prev_stick = Candlestick(existing_candlestick=self.candlesticks[-1])
                 self.candlesticks = self.candlesticks[:-1]
