@@ -32,7 +32,7 @@ class TradeAndHeartbeatWebsocket(cbpro.WebsocketClient):
         super(TradeAndHeartbeatWebsocket, self).__init__(products=self.products, channels=self.channels)
 
     def on_open(self):
-        self.websocket_queue = queue.Queue()
+        self.websocket_queue = queue.Queue(maxsize=1000)
         self.stop = False
         self.logger.debug("-- CBPRO Websocket Opened ---")
 
