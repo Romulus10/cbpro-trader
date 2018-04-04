@@ -81,7 +81,11 @@ class BacktestFakeWebsocket(TradeAndHeartbeatWebsocket):
             newest_trade = min(self.current_trades, key=lambda x: self.current_trades.get(x).get('time'))
             while newest_trade:
                 self.websocket_queue.put(self.current_trades.get(newest_trade))
-                self.current_trades[newest_trade] = self.cursor_dict[newest_trade].next()
+                try:
+                    self.current_trades[newest_trade] = self.cursor_dict[newest_trade].next()
+                except StopIteration:
+                    self.logger.debug("OUT OF TRADES!")
+                    exit()
                 newest_trade = min(self.current_trades, key=lambda x: self.current_trades.get(x).get('time'))
 
         self.stop = False
@@ -172,11 +176,12 @@ while(True):
         break
     except Exception as e:
         error_logger.exception(datetime.datetime.now())
-        trade_engine.close()
-        cbpro_websocket.close()
-        cbpro_websocket.error = None
-        # Period data cannot be trusted. Re-initialize
-        for cur_period in indicator_period_list:
-            cur_period.initialize()
-        time.sleep(10)
-        cbpro_websocket.start()
+        if not config['backtest']:
+            trade_engine.close()
+            cbpro_websocket.close()
+            cbpro_websocket.error = None
+            # Period data cannot be trusted. Re-initialize
+            for cur_period in indicator_period_list:
+                cur_period.initialize()
+            time.sleep(10)
+            cbpro_websocket.start()
