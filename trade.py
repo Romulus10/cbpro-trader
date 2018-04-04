@@ -12,7 +12,7 @@ class Trade:
     def __init__(self, msg):
         self.seq = int(msg.get('sequence'))
         self.trade_id = int(msg.get('trade_id'))
-        self.time = dateutil.parser.parse(msg.get('time'))
+        self.time = dateutil.parser.parse(str(msg.get('time')))
         self.price = float(msg.get('price'))
         self.volume = float(msg.get('size'))
         self.logger = logging.getLogger('trader-logger')
