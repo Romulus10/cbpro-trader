@@ -14,6 +14,8 @@ import time
 import curses_interface
 import logging
 import datetime
+from threading import Thread
+from pymongo import MongoClient
 from decimal import Decimal
 from websocket import WebSocketConnectionClosedException
 
@@ -59,6 +61,35 @@ class TradeAndHeartbeatWebsocket(gdax.WebsocketClient):
         self.websocket_queue.put(msg)
 
 
+class BacktestFakeWebsocket(TradeAndHeartbeatWebsocket):
+    def __init__(self):
+        mongo_client = MongoClient('mongodb://localhost:27017/')
+        db = mongo_client.gdax_data
+        start = datetime.datetime.now() - datetime.timedelta(days=14)
+
+        self.cursor_dict = {'BTC-USD': db.btc_usd.find({'time': {'$gte': start}}).sort([('time', 1)]),
+                            'ETH-USD': db.eth_usd.find({'time': {'$gte': start}}).sort([('time', 1)]),
+                            'LTC-USD': db.ltc_usd.find({'time': {'$gte': start}}).sort([('time', 1)])}
+
+        self.current_trades = {'BTC-USD': self.cursor_dict['BTC-USD'].next(),
+                               'ETH-USD': self.cursor_dict['ETH-USD'].next(),
+                               'LTC-USD': self.cursor_dict['LTC-USD'].next()}
+        super(BacktestFakeWebsocket, self).__init__()
+
+    def start(self):
+        def _go():
+            newest_trade = min(self.current_trades, key=lambda x: self.current_trades.get(x).get('time'))
+            while newest_trade:
+                self.websocket_queue.put(self.current_trades.get(self.newest_trade))
+                self.current_trades[newest_trade] = self.cursor_dict[newest_trade].next()
+                newest_trade = min(self.current_trades, key=lambda x: self.current_trades.get(x).get('time'))
+
+        self.stop = False
+        self.on_open()
+        self.thread = Thread(target=_go)
+        self.thread.start()
+
+
 with open("config.yml", 'r') as ymlfile:
     config = yaml.load(ymlfile)
 logger = logging.getLogger('trader-logger')
@@ -95,7 +126,10 @@ for cur_period in config['periods']:
 auth_client = gdax.AuthenticatedClient(config['key'], config['secret'], config['passphrase'])
 max_slippage = Decimal(str(config['max_slippage']))
 trade_engine = engine.TradeEngine(auth_client, product_list=product_list, fiat=fiat_currency, is_live=config['live'], max_slippage=max_slippage)
-gdax_websocket = TradeAndHeartbeatWebsocket(fiat=fiat_currency)
+if config['backtest']:
+    gdax_websocket = BacktestFakeWebsocket()
+else:
+    gdax_websocket = TradeAndHeartbeatWebsocket(fiat=fiat_currency)
 gdax_websocket.start()
 indicator_period_list[0].verbose_heartbeat = True
 indicator_subsys = indicators.IndicatorSubsystem(indicator_period_list)
