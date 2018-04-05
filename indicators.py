@@ -19,6 +19,7 @@ class IndicatorSubsystem:
 
     def recalculate_indicators(self, cur_period):
         total_periods = len(cur_period.candlesticks)
+        self.current_indicators[cur_period.name]['total_periods'] = total_periods
         if total_periods > 20:
             closing_prices = cur_period.get_closing_prices()
             closing_prices_close = np.append(closing_prices, cur_period.cur_candlestick.close)
@@ -33,7 +34,6 @@ class IndicatorSubsystem:
             self.calculate_stoch(cur_period.name, closing_prices_close)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
-            self.current_indicators[cur_period.name]['total_periods'] = total_periods
 
     def calculate_adx(self, period_name, close):
         adx = talib.ADX(self.highs, self.lows, close, timeperiod=14)
