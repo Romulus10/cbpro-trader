@@ -128,11 +128,12 @@ for cur_period in config['periods']:
         trade_period_list[cur_period['product']].append(new_period)
 auth_client = gdax.AuthenticatedClient(config['key'], config['secret'], config['passphrase'])
 max_slippage = Decimal(str(config['max_slippage']))
-trade_engine = engine.TradeEngine(auth_client, product_list=product_list, fiat=fiat_currency, is_live=config['live'], max_slippage=max_slippage)
 if config['backtest']:
     gdax_websocket = BacktestFakeWebsocket()
+    trade_engine = engine.BacktestEngine(auth_client, product_list=product_list, fiat=fiat_currency, is_live=config['live'], max_slippage=max_slippage)
 else:
     gdax_websocket = TradeAndHeartbeatWebsocket(fiat=fiat_currency)
+    trade_engine = engine.TradeEngine(auth_client, product_list=product_list, fiat=fiat_currency, is_live=config['live'], max_slippage=max_slippage)
 gdax_websocket.start()
 indicator_period_list[0].verbose_heartbeat = True
 indicator_subsys = indicators.IndicatorSubsystem(indicator_period_list)
@@ -153,7 +154,7 @@ while(True):
         if msg.get('type') == "match":
             for cur_period in indicator_period_list:
                 cur_period.process_trade(msg)
-            if time.time() - last_indicator_update >= 1.0:
+            if time.time() - last_indicator_update >= 0.0:
                 for cur_period in indicator_period_list:
                     indicator_subsys.recalculate_indicators(cur_period)
                 for product_id, period_list in trade_period_list.items():

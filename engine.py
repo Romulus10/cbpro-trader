@@ -394,3 +394,56 @@ class TradeEngine():
             else:
                 product.buy_flag = False
                 product.sell_flag = False
+
+
+class BacktestEngine(TradeEngine):
+    def __init__(self, auth_client, initial_balance=Decimal('1000.00'),
+                 product_list=['BTC-USD', 'ETH-USD', 'LTC-USD'], fiat='USD',
+                 is_live=False, max_slippage=Decimal('0.10')):
+        self.fiat_currency = fiat
+        self.fiat = initial_balance
+        self.btc = Decimal('0.0')
+        self.eth = Decimal('0.0')
+        self.ltc = Decimal('0.0')
+        self.bch = Decimal('0.0')
+        self.closing_prices = {
+            'BTC-USD': Decimal('0.0'),
+            'ETH-USD': Decimal('0.0'),
+            'LTC-USD': Decimal('0.0')
+        }
+        super(BacktestEngine, self).__init__(auth_client=auth_client, product_list=product_list,
+                                             fiat=fiat, is_live=True, max_slippage=max_slippage)
+
+    def update_amounts(self):
+        return
+
+    def buy(self, product=None, amount=None):
+        amount = self.get_quoted_currency_from_product_id(product.product_id)
+        amount = self.round_coin(Decimal(amount) / Decimal(self.closing_prices[product.product_id]))
+        setattr(self, product.product_id[:3].lower(), amount)
+        if product.product_id[4:] == 'USD' or product.product_id[4:] == 'EUR':
+            self.fiat = Decimal('0.0')
+        else:
+            setattr(self, product.product_id[4:].lower(), Decimal('0.0'))
+
+    def sell(self, product=None, amount=None):
+        amount = self.get_base_currency_from_product_id(product.product_id)
+        total = Decimal(amount) * Decimal(self.closing_prices[product.product_id])
+
+        setattr(self, product.product_id[:3].lower(), Decimal('0.0'))
+        if product.product_id[4:] == 'USD' or product.product_id[4:] == 'EUR':
+            self.fiat = total
+        else:
+            setattr(self, product.product_id[4:].lower(), total)
+
+    def determine_trades(self, product_id, period_list, indicators):
+
+        for cur_period in period_list:
+            if indicators[cur_period.name]['total_periods'] > 30:
+                if cur_period.product == 'BTC-USD':
+                    self.closing_prices['BTC-USD'] = indicators[cur_period.name]['close']
+                elif cur_period.product == 'ETH-USD':
+                    self.closing_prices['ETH-USD'] = indicators[cur_period.name]['close']
+                elif cur_period.product == 'LTC-USD':
+                    self.closing_prices['LTC-USD'] = indicators[cur_period.name]['close']
+                super(BacktestEngine, self).determine_trades(product_id=product_id, period_list=period_list, indicators=indicators)
