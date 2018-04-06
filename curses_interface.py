@@ -52,11 +52,11 @@ class cursesDisplay:
         starty = self.starty
         for cur_period in period_list:
             if indicators[cur_period.name]['total_periods'] > 250:
-                self.pad.addstr(starty, 0, "%s - EMA_TREND: %f ADX: %f ADX_TREND: %f" %
-                                (cur_period.name, indicators[cur_period.name]['ema_trend'], indicators[cur_period.name]['adx'],
-                                 indicators[cur_period.name]['adx_trend']),
-                                self.print_color(Decimal(indicators[cur_period.name]['ema_trend']), Decimal('0.0'),
-                                                 Decimal(indicators[cur_period.name]['adx']), Decimal('25.0')))
+                self.pad.addstr(starty, 0, "%s - EMA3: %f EMA6: %f EMA3_TREND: %f ADX: %f" %
+                                (cur_period.name, indicators[cur_period.name]['ema3'], indicators[cur_period.name]['ema6'],
+                                 indicators[cur_period.name]['ema3_trend'], indicators[cur_period.name]['adx']),
+                                self.print_color(Decimal(indicators[cur_period.name]['ema3']), Decimal(indicators[cur_period.name]['ema6']), 
+                                                 Decimal(indicators[cur_period.name]['adx']), Decimal('20.0')))
                 starty += 1
         self.starty = starty + 1
 
