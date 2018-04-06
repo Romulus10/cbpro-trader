@@ -190,7 +190,7 @@ class Period:
         self.cur_candlestick_start = isotime.replace(second=0, microsecond=0)
 
     def add_stick(self, stick_to_add):
-        self.candlesticks = np.row_stack((self.candlesticks, stick_to_add.close_candlestick(self.name)))
+        self.candlesticks = np.row_stack((self.candlesticks[-300:], stick_to_add.close_candlestick(self.name)))
 
     def close_candlestick(self):
         if not self.updated_hist_data:
