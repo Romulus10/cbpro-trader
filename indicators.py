@@ -31,7 +31,7 @@ class IndicatorSubsystem:
             # self.calculate_macd(cur_period.name, closing_prices_close)
             self.calculate_obv(cur_period.name, closing_prices_close, volumes)
             self.calculate_adx(cur_period.name, closing_prices_close)
-            self.calculate_stoch(cur_period.name, closing_prices_close)
+            # self.calculate_stoch(cur_period.name, closing_prices_close)
 
             self.current_indicators[cur_period.name]['close'] = cur_period.cur_candlestick.close
 
@@ -74,7 +74,7 @@ class IndicatorSubsystem:
 
     def calculate_obv(self, period_name, closing_prices, volumes):
         obv = talib.OBV(closing_prices, volumes)
-        obv_ema = talib.EMA(obv, timeperiod=3)
+        obv_ema = talib.EMA(obv, timeperiod=10)
 
         self.current_indicators[period_name]['obv_ema'] = obv_ema[-1]
         self.current_indicators[period_name]['obv'] = obv[-1]

@@ -52,11 +52,11 @@ class cursesDisplay:
         starty = self.starty
         for cur_period in period_list:
             if indicators[cur_period.name]['total_periods'] > 250:
-                stoch_diff = Decimal(indicators[cur_period.name]['stoch_slowk']) - Decimal(indicators[cur_period.name]['stoch_slowd'])
                 obv_diff = Decimal(indicators[cur_period.name]['obv']) - Decimal(indicators[cur_period.name]['obv_ema'])
-                self.pad.addstr(starty, 0, "%s - OBV_DIFF: %f STOCH_DIFF: %f ADX: %f" %
-                                (cur_period.name, obv_diff, stoch_diff, indicators[cur_period.name]['adx']),
-                                self.print_color(Decimal(obv_diff), Decimal('0.0')))
+                self.pad.addstr(starty, 0, "%s - OBV_DIFF: %f ADX: %f" %
+                                (cur_period.name, obv_diff, indicators[cur_period.name]['adx']),
+                                self.print_color(Decimal(obv_diff), Decimal('0.0'),
+                                                 Decimal(indicators[cur_period.name]['adx']), Decimal('20.0')))
                 starty += 1
         self.starty = starty + 1
 
