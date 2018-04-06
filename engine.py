@@ -420,6 +420,7 @@ class BacktestEngine(TradeEngine):
     def buy(self, product=None, amount=None):
         amount = self.get_quoted_currency_from_product_id(product.product_id)
         amount = self.round_coin(Decimal(amount) / Decimal(self.closing_prices[product.product_id]))
+        amount = amount * Decimal('0.999')
         setattr(self, product.product_id[:3].lower(), amount)
         if product.product_id[4:] == 'USD' or product.product_id[4:] == 'EUR':
             self.fiat = Decimal('0.0')
@@ -429,6 +430,7 @@ class BacktestEngine(TradeEngine):
     def sell(self, product=None, amount=None):
         amount = self.get_base_currency_from_product_id(product.product_id)
         total = Decimal(amount) * Decimal(self.closing_prices[product.product_id])
+        total = total * Decimal('0.999')
 
         setattr(self, product.product_id[:3].lower(), Decimal('0.0'))
         if product.product_id[4:] == 'USD' or product.product_id[4:] == 'EUR':
