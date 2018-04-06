@@ -43,7 +43,7 @@ class Candlestick:
     def add_trade(self, new_trade):
         self.new = False
         if not self.time:
-            self.time = pytz.utc.localize(new_trade.time.replace(second=0, microsecond=0))
+            self.time = pytz.utc.localize(new_trade.time.replace(minute=new_trade.time.minute % 5, second=0, microsecond=0))
 
         if not self.open:
             self.open = new_trade.price
