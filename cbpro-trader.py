@@ -65,7 +65,8 @@ class BacktestFakeWebsocket(TradeAndHeartbeatWebsocket):
     def __init__(self):
         mongo_client = MongoClient('mongodb://localhost:27017/')
         db = mongo_client.gdax_data
-        start = datetime.datetime.now() - datetime.timedelta(days=14)
+        start = datetime.datetime.now()
+        start = start - datetime.timedelta(days=4, minutes=start.minute % 5)
 
         self.cursor_dict = {'BTC-USD': db.btc_usd.find({'time': {'$gte': start}}).sort([('time', 1)]).batch_size(100),
                             'ETH-USD': db.eth_usd.find({'time': {'$gte': start}}).sort([('time', 1)]).batch_size(100),
