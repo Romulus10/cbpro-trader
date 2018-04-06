@@ -446,4 +446,6 @@ class BacktestEngine(TradeEngine):
                     self.closing_prices['ETH-USD'] = indicators[cur_period.name]['close']
                 elif cur_period.product == 'LTC-USD':
                     self.closing_prices['LTC-USD'] = indicators[cur_period.name]['close']
+                elif cur_period.product == 'ETH-BTC':
+                    self.closing_prices['ETH-BTC'] = indicators[cur_period.name]['close']
                 super(BacktestEngine, self).determine_trades(product_id=product_id, period_list=period_list, indicators=indicators)
