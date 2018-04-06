@@ -86,8 +86,8 @@ class BacktestFakeWebsocket(TradeAndHeartbeatWebsocket):
                 self.websocket_queue.put(self.current_trades.get(newest_trade))
                 try:
                     self.current_trades[newest_trade] = self.cursor_dict[newest_trade].next()
-                except StopIteration:
-                    self.logger.debug("OUT OF TRADES!")
+                except (Exception, StopIteration):
+                    self.error_logger.exception(datetime.datetime.now())
                     exit()
                 newest_trade = min(self.current_trades, key=lambda x: self.current_trades.get(x).get('time'))
 
