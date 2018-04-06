@@ -67,13 +67,15 @@ class BacktestFakeWebsocket(TradeAndHeartbeatWebsocket):
         db = mongo_client.gdax_data
         start = datetime.datetime.now() - datetime.timedelta(days=14)
 
-        self.cursor_dict = {'BTC-USD': db.btc_usd.find({'time': {'$gte': start}}).sort([('time', 1)]),
-                            'ETH-USD': db.eth_usd.find({'time': {'$gte': start}}).sort([('time', 1)]),
-                            'LTC-USD': db.ltc_usd.find({'time': {'$gte': start}}).sort([('time', 1)])}
+        self.cursor_dict = {'BTC-USD': db.btc_usd.find({'time': {'$gte': start}}).sort([('time', 1)]).batch_size(100),
+                            'ETH-USD': db.eth_usd.find({'time': {'$gte': start}}).sort([('time', 1)]).batch_size(100),
+                            'LTC-USD': db.ltc_usd.find({'time': {'$gte': start}}).sort([('time', 1)]).batch_size(100),
+                            'ETH-BTC': db.eth_btc.find({'time': {'$gte': start}}).sort([('time', 1)]).batch_size(100)}
 
         self.current_trades = {'BTC-USD': self.cursor_dict['BTC-USD'].next(),
                                'ETH-USD': self.cursor_dict['ETH-USD'].next(),
-                               'LTC-USD': self.cursor_dict['LTC-USD'].next()}
+                               'LTC-USD': self.cursor_dict['LTC-USD'].next(),
+                               'ETH-BTC': self.cursor_dict['ETH-BTC'].next()}
         super(BacktestFakeWebsocket, self).__init__()
 
     def start(self):
