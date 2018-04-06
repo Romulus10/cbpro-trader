@@ -441,7 +441,7 @@ class BacktestEngine(TradeEngine):
     def determine_trades(self, product_id, period_list, indicators):
 
         for cur_period in period_list:
-            if indicators[cur_period.name]['total_periods'] > 30:
+            if indicators[cur_period.name]['total_periods'] > 250:
                 if cur_period.product == 'BTC-USD':
                     self.closing_prices['BTC-USD'] = indicators[cur_period.name]['close']
                 elif cur_period.product == 'ETH-USD':
